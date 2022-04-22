@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import postMessage from '../models/postsMessage.js';
+import Digimon from '../models/Digimon.js';
 
 export const getPosts = async (req, res) => {
     try {
-        const postMessages = await postMessage.find();
+        const postMessages = await Digimon.find();
 
         res.status(200).json(postMessages);
     } catch (error) {
@@ -14,7 +14,7 @@ export const getPosts = async (req, res) => {
 export const createPost = async (req, res) => {
     const post = req.body;
 
-    const newPost = new postMessage(post);
+    const newPost = new Digimon(post);
 
     try {
         await newPost.save();
@@ -31,7 +31,7 @@ export const updatePost = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id');
     
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, post, { new: true });
+    const updatedPost = await Digimon.findByIdAndUpdate(_id, post, { new: true });
 
     res.json(updatedPost);
 }
@@ -41,7 +41,7 @@ export const deletePost = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No post with that id');
 
-    await postMessage.findByIdAndRemove(id);
+    await Digimon.findByIdAndRemove(id);
 
     console.log('DELETED');
 

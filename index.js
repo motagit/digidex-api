@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
-import digimonsRoute from './routes/digimon.js';
+import digimonsRoute from './routes/digimon.routes.js';
 
 const app = express();
 

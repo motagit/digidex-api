@@ -9,7 +9,9 @@ const digimonSchema = mongoose.Schema({
     // family
     // type
     // priorForms
-    // nextForms
+    nextForms: [{
+        _id: String
+    }],
     information: String,
     attacks: [{
         name: String,

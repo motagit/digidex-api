@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
-import Digimon from '../models/Digimon.js';
+import Digimon from '../models/digimon.model.js';
 
 export const getPosts = async (req, res) => {
     try {
         const postMessages = await Digimon.find();
+        // Ordenar digimons pelo number
+        postMessages.sort((a, b) => parseFloat(a.number) - parseFloat(b.number));
 
         res.status(200).json(postMessages);
     } catch (error) {

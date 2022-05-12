@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
 const digimonSchema = mongoose.Schema({
     number: Number,
     iconSource: String,
@@ -8,9 +11,13 @@ const digimonSchema = mongoose.Schema({
     attribute: String,
     // family
     // type
-    // priorForms
+    priorForms: [{
+        _id: ObjectId,
+        name: String
+    }],
     nextForms: [{
-        _id: String
+        _id: ObjectId,
+        name: String
     }],
     information: String,
     attacks: [{

@@ -1,9 +1,10 @@
 import express from 'express';
 
-import { getPosts, createPost, updatePost, deletePost } from '../controllers/posts.js';
+import { getPosts, createPost, updatePost, deletePost, findById } from '../controllers/digimon.controller.js';
 
 const router = express.Router();
 
+router.get('/:id', findById);
 router.get('/', getPosts);
 router.post('/', createPost);
 router.patch('/:id', updatePost);

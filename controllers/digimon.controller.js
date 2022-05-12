@@ -1,9 +1,24 @@
 import mongoose from 'mongoose';
 import Digimon from '../models/digimon.model.js';
+import { deleteReferences, verifyPriorEvolutions } from '../services/digimon.service.js';
+
+export const findById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await Digimon.findById(id);
+        if (post != null) 
+            res.status(200).json(post);
+        else 
+            res.status(404).json({message: "Não existem referências com esse ID."}); 
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
 
 export const getPosts = async (req, res) => {
     try {
         const postMessages = await Digimon.find();
+
         // Ordenar digimons pelo number
         postMessages.sort((a, b) => parseFloat(a.number) - parseFloat(b.number));
 
@@ -15,8 +30,9 @@ export const getPosts = async (req, res) => {
 
 export const createPost = async (req, res) => {
     const post = req.body;
-
     const newPost = new Digimon(post);
+
+    verifyPriorEvolutions(newPost);
 
     try {
         await newPost.save();
@@ -35,11 +51,14 @@ export const updatePost = async (req, res) => {
     
     const updatedPost = await Digimon.findByIdAndUpdate(_id, post, { new: true });
 
+    verifyPriorEvolutions(req.body);
+
     res.json(updatedPost);
 }
 
 export const deletePost = async (req, res) => {
     const { id } = req.params;
+    deleteReferences(id);
 
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No post with that id');
 

@@ -1,39 +1,81 @@
 import mongoose from 'mongoose';
 import Digimon from '../models/digimon.model.js';
 
-export const verifyPriorEvolutions = async(digimon) => {
-    let digimonsUpdate = [];
+
+export const verifyAndUpdatePriorEvolutions = async(digimon) => {
+    let digimonsToUpdate = [];
+
     for (let i = 0; i < digimon.nextForms.length; i++) {
         let digimonNextForm = await Digimon.findById(digimon.nextForms[i]._id);
         if (digimonNextForm != null) {
-            for (let j = 0; j < digimonNextForm.priorForms.length; j++) {
-                // Se já estiver na lista de priorForm, sai da função.
-                if (digimonNextForm.priorForms[j]._id == digimon._id) {
-                    return;
-                }
+            let exist = await Digimon.find({
+                _id: digimonNextForm._id, 
+                priorForms: { $elemMatch: {_id: digimon._id } }
+            });
+            // Se não estiver na lista de priorForm, adiciona.
+            if (exist.length == 0) {
+                digimonNextForm.priorForms.push({ _id: digimon._id, name: digimon.name }); 
+                digimonsToUpdate.push(digimonNextForm);
             }
-            // Adiciona o digimon na array de update
-            digimonNextForm.priorForms.push({ _id: digimon._id, name: digimon.name });
-            digimonsUpdate.push(digimonNextForm);
         }
     }
     // Da um update, atualizando o priorForm
-    for (let i = 0; i < digimonsUpdate.length; i++) {
-        await Digimon.findByIdAndUpdate(digimonsUpdate[i]._id, digimonsUpdate[i], { new: true });
+    for (let digimon of digimonsToUpdate) {
+        await Digimon.findByIdAndUpdate(digimon._id, digimon, { new: true });
+        console.log("PRIORFORM UPDATED");
     }
+
+    // Fazer um find para achar referencias como priorForm do Digimon
+    const digimonPriorFormReferences = await Digimon.find({
+        priorForms: { $elemMatch: {_id: digimon._id } }
+    });
+    
+    // Passa por cada priorForm com referencias do Digimon
+    for (let j = 0; j < digimonPriorFormReferences.length; j++) {
+        // Se esse digimon com referencia do Digimon NÃO ESTIVER no nextForm do Digimon, remove a referencia
+        let teste = await digimonExistsInNextForm(digimon, digimonPriorFormReferences[j]) == true;
+        if (teste == true) {
+            console.log("Digimon " + digimonPriorFormReferences[j].name + " is a next form from " + digimon.name);
+        } else {
+            console.log("Digimon " + digimonPriorFormReferences[j].name + " is not a next form from " + digimon.name);
+            let digimonReference = [];
+            digimonReference.push(digimonPriorFormReferences[j]);
+            deletePriorFormById(digimonReference, digimon._id);
+        }
+    }
+}
+
+const digimonExistsInNextForm = async(digimon, digimonNextForm) => {
+
+    const digimonNextFormReferences = await Digimon.find({
+        _id: digimon._id, 
+        nextForms: { $elemMatch: {_id: digimonNextForm._id} }
+    });
+
+    if (digimonNextFormReferences.length > 0)
+        return true;
+    else
+        return false;
 }
 
 export const deleteReferences = async(digimonId) => {
     // Da um find nos digimons que possuem esse id como nextForm
-    const digimonNextFormReferences = await Digimon.find( {nextForms: { $elemMatch: {_id: digimonId } }});
+    const digimonNextFormReferences = await Digimon.find({
+        nextForms: { $elemMatch: {_id: digimonId } }
+    });
+
     // Da um find nos digimons que possuem esse id como priorForm
-    const digimonPriorFormReferences = await Digimon.find( {priorForms: { $elemMatch: {_id: digimonId } }});
+    const digimonPriorFormReferences = await Digimon.find({
+        priorForms: { $elemMatch: {_id: digimonId } }
+    });
     
     // Se tiver pelo menos uma referencia, deleta da array e da update.
     if(digimonNextFormReferences.length > 0) 
         deleteNextFormById(digimonNextFormReferences, digimonId);
     if(digimonPriorFormReferences.length > 0) 
         deletePriorFormById(digimonPriorFormReferences, digimonId);
+    
+    console.log("POSSIBLE REFERENCES DELETED");
 }
 
 export const deleteNextFormById = async(digimonReferences, digimonId) => {

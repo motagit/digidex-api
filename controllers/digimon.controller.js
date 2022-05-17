@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Digimon from '../models/digimon.model.js';
-import { deleteReferences, verifyPriorEvolutions } from '../services/digimon.service.js';
+import * as digimonService from '../services/digimon.service.js';
 
 export const findById = async (req, res) => {
     try {
@@ -32,7 +32,7 @@ export const createPost = async (req, res) => {
     const post = req.body;
     const newPost = new Digimon(post);
 
-    verifyPriorEvolutions(newPost);
+    digimonService.verifyAndUpdatePriorEvolutions(newPost);
 
     try {
         await newPost.save();
@@ -47,18 +47,18 @@ export const updatePost = async (req, res) => {
     const { id: _id } = req.params;
     const post = req.body;
 
+    digimonService.verifyAndUpdatePriorEvolutions(post);
+
     if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id');
     
     const updatedPost = await Digimon.findByIdAndUpdate(_id, post, { new: true });
-
-    verifyPriorEvolutions(req.body);
 
     res.json(updatedPost);
 }
 
 export const deletePost = async (req, res) => {
     const { id } = req.params;
-    deleteReferences(id);
+    digimonService.deleteReferences(id);
 
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No post with that id');
 

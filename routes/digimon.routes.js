@@ -1,4 +1,5 @@
 import express from 'express';
+import auth from '../middleware/auth.js';
 
 import { getPosts, createPost, updatePost, deletePost, findById } from '../controllers/digimon.controller.js';
 
@@ -6,8 +7,8 @@ const router = express.Router();
 
 router.get('/:id', findById);
 router.get('/', getPosts);
-router.post('/', createPost);
-router.patch('/:id', updatePost);
-router.delete('/:id', deletePost);
+router.post('/', auth, createPost);
+router.patch('/:id', auth, updatePost);
+router.delete('/:id', auth, deletePost);
 
 export default router;

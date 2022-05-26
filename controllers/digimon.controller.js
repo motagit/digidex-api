@@ -30,7 +30,8 @@ export const getPosts = async (req, res) => {
 
 export const createPost = async (req, res) => {
     const post = req.body;
-    const newPost = new Digimon(post);
+    console.log(req);
+    const newPost = new Digimon({ ...post, createdAt: new Date().toISOString });
 
     digimonService.verifyAndUpdatePriorEvolutions(newPost);
 

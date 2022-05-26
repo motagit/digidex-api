@@ -8,6 +8,7 @@ const digimonSchema = mongoose.Schema({
     name : String,
     level: String,
     attribute: String,
+    userCreator: String,
     // family
     // type
     priorForms: [{

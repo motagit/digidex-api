@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 const auth = async (req, res, next) => {
     try {
         if (req.headers.authorization == null) {
-            throw "You're not logged in!";
+            throw "You don't have permission!";
         }
 
         const token = req.headers.authorization.split(" ")[1];

@@ -21,7 +21,7 @@ export const signIn = async (req, res) => {
         if (existingUser.active == true) {
             token = jwt.sign({ user: existingUser.email, id: existingUser._id }, 'test', { expiresIn: "1h" });
         } else {
-            return res.status(401).json({ message: "You can't access the system because no admins activated your user." })
+            return res.status(401).json({ message: "You can't access the system because you user isn't activated." })
         }
         
         res.status(200).json({ result: existingUser, token });
@@ -38,7 +38,7 @@ export const signUp = async (req, res) => {
         const existingUser = await User.findOne({ email });
 
         if (existingUser) 
-            return res.status(404).json({ message: "User exists." });
+            return res.status(404).json({ message: "User already exists." });
         
         if (password !== confirmPassword)
             return res.status(404).json({ message: "Passwords don't match." });

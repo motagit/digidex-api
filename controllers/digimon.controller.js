@@ -9,7 +9,7 @@ export const findById = async (req, res) => {
         if (post != null) 
             res.status(200).json(post);
         else 
-            res.status(404).json({message: "Não existem referências com esse ID."}); 
+            res.status(404).json({message: "No digimon references with that id."}); 
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -30,8 +30,16 @@ export const getPosts = async (req, res) => {
 
 export const createPost = async (req, res) => {
     const post = req.body;
-    console.log(req);
     const newPost = new Digimon({ ...post, createdAt: new Date().toISOString });
+
+    if (post.number == 0 || post.number == null) 
+        return res.status(404).json({ message: "Number cannot be 0 or null." });
+    
+    if (post.name == "" || post.name == null)
+        return res.status(404).json({ message: "Name cannot be empty." });
+
+    if (post.iconSource == "" || post.iconSource == null)
+        return res.status(404).json({ message: "Digimon image/gif is required." });
 
     digimonService.verifyAndUpdatePriorEvolutions(newPost);
 
@@ -48,9 +56,15 @@ export const updatePost = async (req, res) => {
     const { id: _id } = req.params;
     const post = req.body;
 
+    if (post.number == 0 || post.number == null) 
+        return res.status(404).json({ message: "Number cannot be 0 or null." });
+    
+    if (post.name == "" || post.name == null)
+        return res.status(404).json({ message: "Name cannot be empty." });
+
     digimonService.verifyAndUpdatePriorEvolutions(post);
 
-    if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No post with that id');
+    if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(404).send('No digimon references with that id');
     
     const updatedPost = await Digimon.findByIdAndUpdate(_id, post, { new: true });
 
@@ -61,11 +75,11 @@ export const deletePost = async (req, res) => {
     const { id } = req.params;
     digimonService.deleteReferences(id);
 
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No post with that id');
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send('No digimon references with that id');
 
     await Digimon.findByIdAndRemove(id);
 
     console.log('DELETED');
 
-    res.json({ message: 'Post deleted successfully' });
+    res.status(200).json({ message: 'Digimon successfully deleted.' });
 }

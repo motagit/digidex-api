@@ -19,8 +19,8 @@ export const getPosts = async (req, res) => {
     try {
         const postMessages = await Digimon.find();
 
-        // Ordenar digimons pelo number
-        postMessages.sort((a, b) => parseFloat(a.number) - parseFloat(b.number));
+        // Ordenar digimons pelo level
+        postMessages.sort((a, b) => parseFloat(a.level) - parseFloat(b.level));
 
         res.status(200).json(postMessages);
     } catch (error) {
@@ -32,14 +32,14 @@ export const createPost = async (req, res) => {
     const post = req.body;
     const newPost = new Digimon({ ...post, createdAt: new Date().toISOString });
 
-    if (post.number == 0 || post.number == null) 
-        return res.status(404).json({ message: "Number cannot be 0 or null." });
+    if (post.iconSource == "" || post.iconSource == null)
+        return res.status(404).json({ message: "Digimon image/gif is required." });
     
     if (post.name == "" || post.name == null)
         return res.status(404).json({ message: "Name cannot be empty." });
 
-    if (post.iconSource == "" || post.iconSource == null)
-        return res.status(404).json({ message: "Digimon image/gif is required." });
+    if (post.level == 0 || post.level == null) 
+        return res.status(404).json({ message: "Level cannot be empty." });
 
     digimonService.verifyAndUpdatePriorEvolutions(newPost);
 
@@ -56,11 +56,12 @@ export const updatePost = async (req, res) => {
     const { id: _id } = req.params;
     const post = req.body;
 
-    if (post.number == 0 || post.number == null) 
-        return res.status(404).json({ message: "Number cannot be 0 or null." });
     
     if (post.name == "" || post.name == null)
         return res.status(404).json({ message: "Name cannot be empty." });
+
+    if (post.level == 0 || post.level == null) 
+        return res.status(404).json({ message: "Level cannot be empty." });
 
     digimonService.verifyAndUpdatePriorEvolutions(post);
 

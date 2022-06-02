@@ -3,10 +3,9 @@ import mongoose from 'mongoose';
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const digimonSchema = mongoose.Schema({
-    number: Number,
     iconSource: String,
     name : String,
-    level: String,
+    level: Number,
     attribute: String,
     userCreator: String,
     // family

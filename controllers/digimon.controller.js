@@ -20,7 +20,7 @@ export const getPosts = async (req, res) => {
         const postMessages = await Digimon.find();
 
         // Ordenar digimons pelo level
-        postMessages.sort((a, b) => parseFloat(a.level) - parseFloat(b.level));
+        postMessages.sort((a, b) => parseFloat(a.level._id) - parseFloat(b.level._id));
 
         res.status(200).json(postMessages);
     } catch (error) {
@@ -30,7 +30,7 @@ export const getPosts = async (req, res) => {
 
 export const createPost = async (req, res) => {
     const post = req.body;
-    const newPost = new Digimon({ ...post, createdAt: new Date().toISOString });
+    const newPost = new Digimon({ ...post, createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) });
 
     if (post.iconSource == "" || post.iconSource == null)
         return res.status(404).json({ message: "Digimon image/gif is required." });
@@ -55,7 +55,6 @@ export const createPost = async (req, res) => {
 export const updatePost = async (req, res) => {
     const { id: _id } = req.params;
     const post = req.body;
-
     
     if (post.name == "" || post.name == null)
         return res.status(404).json({ message: "Name cannot be empty." });

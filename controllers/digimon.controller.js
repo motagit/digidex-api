@@ -17,7 +17,13 @@ export const findById = async (req, res) => {
 
 export const getPosts = async (req, res) => {
     try {
-        const postMessages = await Digimon.find();
+        const pageOptions = {
+            page: parseInt(req.query.page, 10) - 1 || 0,
+            limit: parseInt(req.query.limit, 10) || 10
+        }
+        const postMessages = await Digimon.find()
+            .limit(pageOptions.limit)
+            .skip(pageOptions.page * pageOptions.limit);
 
         // Ordenar digimons pelo level
         postMessages.sort((a, b) => parseFloat(a.level._id) - parseFloat(b.level._id));

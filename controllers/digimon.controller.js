@@ -21,14 +21,25 @@ export const getPosts = async (req, res) => {
             page: parseInt(req.query.page, 10) - 1 || 0,
             limit: parseInt(req.query.limit, 10) || 10
         }
-        const postMessages = await Digimon.find()
+        const digimons = await Digimon.find()
             .limit(pageOptions.limit)
             .skip(pageOptions.page * pageOptions.limit);
 
-        // Ordenar digimons pelo level
-        postMessages.sort((a, b) => parseFloat(a.level._id) - parseFloat(b.level._id));
+        const count = await Digimon.count();
+        const pageCount = Math.ceil(count / pageOptions.limit);
 
-        res.status(200).json(postMessages);
+        // Ordenar digimons pelo level
+        digimons.sort((a, b) => parseFloat(a.level._id) - parseFloat(b.level._id));
+
+        res.status(200).json(
+            {
+                pagination: {
+                    count,
+                    pageCount
+                },
+                digimons
+            }
+        );
     } catch (error) {
         res.status(404).json({ message: error.message });
     }

@@ -6,7 +6,7 @@ import { getPosts, createPost, updatePost, deletePost, findById } from '../contr
 const router = express.Router();
 
 router.get('/:id', findById);
-router.get('/', getPosts);
+router.post('/', getPosts);
 router.post('/', auth, createPost);
 router.patch('/:id', auth, updatePost);
 router.delete('/:id', auth, deletePost);

@@ -15,7 +15,7 @@ export const findById = async (req, res) => {
     }
 }
 
-export const getPosts = async (req, res) => {
+export const getDigimons = async (req, res) => {
     try {
         const pageOptions = {
             page: parseInt(req.body.page, 10) - 1 || 0,
@@ -24,20 +24,28 @@ export const getPosts = async (req, res) => {
             level: req.body.level
         }
         let findQuery = {};
+        let filtering = false;
+        let count;
 
         if (pageOptions.name != null && pageOptions.name != '') {
             findQuery.name = { $regex: pageOptions.name, $options: 'i' }; 
+            filtering = true;
         }
 
         if (pageOptions.level != null) {
-            findQuery["level._id"] = pageOptions.level ;
+            findQuery["level._id"] = pageOptions.level;
+            filtering = true;
         }
         
         const digimons = await Digimon.find(findQuery)
             .limit(pageOptions.limit)
             .skip(pageOptions.page * pageOptions.limit);
 
-        const count = await Digimon.count();
+        if (filtering)
+            count = digimons.length;
+        else 
+            count = await Digimon.count();
+
         const pageCount = Math.ceil(count / pageOptions.limit);
 
         // Ordenar digimons pelo level
@@ -57,9 +65,9 @@ export const getPosts = async (req, res) => {
     }
 }
 
-export const createPost = async (req, res) => {
+export const createDigimon = async (req, res) => {
     const post = req.body;
-    const newPost = new Digimon({ ...post, createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) });
+    const newPost = new Digimon({ ...post, createdAt: new Date()});
 
     if (post.iconSource == "" || post.iconSource == null)
         return res.status(404).json({ message: "Digimon image/gif is required." });
@@ -81,7 +89,7 @@ export const createPost = async (req, res) => {
     }
 }
 
-export const updatePost = async (req, res) => {
+export const updateDigimon = async (req, res) => {
     const { id: _id } = req.params;
     const post = req.body;
     
@@ -100,7 +108,7 @@ export const updatePost = async (req, res) => {
     res.json(updatedPost);
 }
 
-export const deletePost = async (req, res) => {
+export const deleteDigimon = async (req, res) => {
     const { id } = req.params;
     digimonService.deleteReferences(id);
 
